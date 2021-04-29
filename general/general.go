@@ -49,7 +49,7 @@ func Close(toFree ...freeable) {
 }
 
 //Initializes the texture
-func initTexture(renderer *sdl.Renderer) aTexture {
+func InitTexture(renderer *sdl.Renderer) aTexture {
 	var texture aTexture
 	texture.renderer = renderer
 	return texture
@@ -61,11 +61,10 @@ type aTexture struct {
 	width    int32
 	texture  *sdl.Texture
 	renderer *sdl.Renderer
-	//
 }
 
 //Loads image into texture from specific path
-func (texture *aTexture) loadImage(path string) {
+func (texture *aTexture) LoadImage(path string) {
 	imgSurface := LoadMedia(path)
 	var err error
 	texture.texture, err = texture.renderer.CreateTextureFromSurface(imgSurface)

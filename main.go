@@ -7,4 +7,5 @@ import (
 func main() {
 	window, screenSurface := general.InitWindow()
 	renderer := general.InitRenderer(window)
+	texture := general.InitTexture(renderer)
 }
