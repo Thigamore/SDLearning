@@ -61,6 +61,7 @@ type aTexture struct {
 	width    int32
 	texture  *sdl.Texture
 	renderer *sdl.Renderer
+	//
 }
 
 //Loads image into texture from specific path
