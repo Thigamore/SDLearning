@@ -51,33 +51,36 @@ func Close(toFree ...freeable) {
 //Initializes the texture
 func InitTexture(renderer *sdl.Renderer) aTexture {
 	var texture aTexture
-	texture.renderer = renderer
+	texture.Renderer = renderer
 	return texture
 }
 
 //Texture Wrapper
 type aTexture struct {
-	height   int32
-	width    int32
-	texture  *sdl.Texture
-	renderer *sdl.Renderer
+	Height   int32
+	Width    int32
+	Texture  *sdl.Texture
+	Renderer *sdl.Renderer
 }
 
 //Loads image into texture from specific path
-func (texture *aTexture) LoadImage(path string) {
+func (texture *aTexture) LoadImage(path string, toKey bool) {
 	imgSurface := LoadMedia(path)
+	if toKey {
+		imgSurface.SetColorKey(true, sdl.MapRGB(imgSurface.Format, 0, 0xFF, 0xFF))
+	}
 	var err error
-	texture.texture, err = texture.renderer.CreateTextureFromSurface(imgSurface)
+	texture.Texture, err = texture.Renderer.CreateTextureFromSurface(imgSurface)
 	if err != nil {
 		panic("Error creating texture from surface")
 	}
-	texture.height = imgSurface.H
-	texture.width = imgSurface.W
+	texture.Height = imgSurface.H
+	texture.Width = imgSurface.W
 	imgSurface.Free()
 }
 
 //Renders texture
-func (texture *aTexture) render(x int32, y int32, clip sdl.Rect) {
-	renderQuad := sdl.Rect{X: x, Y: y, W: texture.width, H: texture.height}
-	texture.renderer.Copy(texture.texture, nil, &renderQuad)
+func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
+	renderQuad := sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
+	texture.Renderer.Copy(texture.Texture, clip, &renderQuad)
 }

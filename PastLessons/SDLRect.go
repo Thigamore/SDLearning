@@ -3,13 +3,8 @@ package main
 import (
 	"fmt"
 
-	sdlImg "github.com/veandco/go-sdl2/img"
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
-
-type freeable interface {
-	Free()
-}
 
 //Prepares Window, Window Surface
 func initWindow() (*sdl.Window, *sdl.Surface) {
@@ -32,22 +27,6 @@ func initRenderer(window *sdl.Window) *sdl.Renderer {
 		panic("Error loading the renderer")
 	}
 	return renderer
-}
-
-//Loads an image
-func loadMedia(path string) *sdl.Surface {
-	loadSurface, err := sdlImg.Load(path)
-	if err != nil {
-		panic("Error loading image")
-	}
-	return loadSurface
-}
-
-//Frees space allocated
-func close(toFree ...freeable) {
-	for _, i := range toFree {
-		i.Free()
-	}
 }
 
 func main() {
