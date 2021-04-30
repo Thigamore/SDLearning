@@ -84,3 +84,11 @@ func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
 	renderQuad := sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
 	texture.Renderer.Copy(texture.Texture, clip, &renderQuad)
 }
+
+//Modulates texture
+func (texture *aTexture) SetColor(red uint8, green, blue uint8) {
+	err := texture.Texture.SetColorMod(red, green, blue)
+	if err != nil {
+		panic("Error setting color modulation")
+	}
+}
