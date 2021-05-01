@@ -6,7 +6,7 @@ import (
 )
 
 func SDLColorMod() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, false)
 	texture := general.InitTexture(renderer)
 	texture.LoadImage("colors.png", false)

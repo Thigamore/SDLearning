@@ -6,7 +6,7 @@ import (
 )
 
 func SDLRotationFlipping() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, false)
 	texture := general.InitTexture(renderer)
 	const SCREEN_WIDTH = 500

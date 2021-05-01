@@ -6,7 +6,7 @@ import (
 )
 
 func SDLClipRendering() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	screenWidth := int32(500)
 	screenHeight := int32(500)
 	renderer := general.InitRenderer(window, false)

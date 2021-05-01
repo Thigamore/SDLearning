@@ -6,7 +6,7 @@ import (
 )
 
 func SDLWindow() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, false)
 	screenWidth := int32(500)
 	screenHeight := int32(500)

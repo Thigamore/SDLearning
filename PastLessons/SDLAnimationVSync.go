@@ -6,7 +6,7 @@ import (
 )
 
 func SDLAnimationVSync() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, true)
 	stickManSheet := general.InitTexture(renderer)
 	const WALKING_ANIMATION_FRAMES = 4

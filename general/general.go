@@ -1,17 +1,32 @@
 package general
 
 import (
+	"github.com/veandco/go-sdl2/img"
 	sdlImg "github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
-type freeable interface {
+type Freeable interface {
 	Free()
 }
 
 //Prepares Window, Window Surface
-func InitWindow() (*sdl.Window, *sdl.Surface) {
-	window, err := sdl.CreateWindow("SDL", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 500, 500, 0)
+func InitWindow(screenWidth int32, screenHeight int32) (*sdl.Window, *sdl.Surface) {
+	err := sdl.Init(sdl.INIT_EVERYTHING)
+	if err != nil {
+		panic("Error initaializing sdl")
+	}
+	err = ttf.Init()
+	if err != nil {
+		panic("Error initaializing ttf")
+	}
+	err = img.Init(img.INIT_PNG | img.INIT_JPG)
+	if err != nil {
+		panic("Error initaializing img")
+	}
+
+	window, err := sdl.CreateWindow("SDL", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, screenWidth, screenHeight, 0)
 	if err != nil {
 		panic("There was an error creating the window")
 	}
@@ -49,10 +64,23 @@ func LoadMedia(path string) *sdl.Surface {
 }
 
 //Frees space allocated
-func Close(toFree ...freeable) {
+func Close(toFree ...Freeable) {
 	for _, i := range toFree {
 		i.Free()
 	}
+}
+
+func CloseAll(toFree []Freeable, renderer *sdl.Renderer, window *sdl.Window) {
+	for _, i := range toFree {
+		i.Free()
+	}
+
+	renderer.Destroy()
+	window.Destroy()
+
+	ttf.Quit()
+	img.Quit()
+	sdl.Quit()
 }
 
 //Initializes the texture
@@ -68,6 +96,8 @@ type aTexture struct {
 	Width    int32
 	Texture  *sdl.Texture
 	Renderer *sdl.Renderer
+	font     *ttf.Font
+	color    *sdl.Color
 }
 
 //Loads image into texture from specific path
@@ -126,4 +156,46 @@ func (texture *aTexture) SetAlpha(alpha uint8) {
 //Sets blending mode
 func (texture *aTexture) SetBlendMode(blending sdl.BlendMode) {
 	texture.Texture.SetBlendMode(blending)
+}
+
+//Creates image from font string
+func (texture *aTexture) LoadText(text string) {
+	texture.Texture.Destroy()
+
+	textSurface, err := texture.font.RenderUTF8Solid(text, *texture.color)
+	if err != nil {
+		panic("Error creating surface from text")
+	}
+
+	newTexture, err := texture.Renderer.CreateTextureFromSurface(textSurface)
+	if err != nil {
+		panic("Error creating texture from text surface")
+	}
+
+	texture.Width = textSurface.W
+	texture.Height = textSurface.H
+
+	textSurface.Free()
+
+	texture.Texture = newTexture
+}
+
+//Sets font
+func (texture *aTexture) SetFont(path string) {
+	var err error
+	texture.font, err = ttf.OpenFont("arial.ttf", 28)
+	if err != nil {
+		panic("Error opening font")
+	}
+}
+
+//Sets color
+func (texture *aTexture) SetFontColor(color *sdl.Color) {
+	texture.color = color
+}
+
+//Destroys and frees everything in texture
+func (texture *aTexture) Free() {
+	texture.Texture.Destroy()
+	texture.font.Close()
 }

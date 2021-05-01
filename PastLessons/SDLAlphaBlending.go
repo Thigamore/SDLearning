@@ -6,7 +6,7 @@ import (
 )
 
 func SDLAlphaBlending() {
-	window, _ := general.InitWindow()
+	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, false)
 	foreground := general.InitTexture(renderer)
 	background := general.InitTexture(renderer)
