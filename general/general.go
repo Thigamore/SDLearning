@@ -94,7 +94,20 @@ func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
 	} else {
 		renderQuad = sdl.Rect{X: x, Y: y, W: texture.Width, H: texture.Height}
 	}
+
 	texture.Renderer.Copy(texture.Texture, clip, &renderQuad)
+}
+
+//Renders texture and flips
+func (texture *aTexture) RenderFlip(x int32, y int32, clip *sdl.Rect, angle float64, center *sdl.Point, flip sdl.RendererFlip) {
+	var renderQuad sdl.Rect
+	if clip != nil {
+		renderQuad = sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
+	} else {
+		renderQuad = sdl.Rect{X: x, Y: y, W: texture.Width, H: texture.Height}
+	}
+
+	texture.Renderer.CopyEx(texture.Texture, clip, &renderQuad, angle, center, flip)
 }
 
 //Modulates texture
