@@ -9,7 +9,7 @@ func SDLClipRendering() {
 	window, _ := general.InitWindow()
 	screenWidth := int32(500)
 	screenHeight := int32(500)
-	renderer := general.InitRenderer(window)
+	renderer := general.InitRenderer(window, false)
 	SpriteClips := make([]sdl.Rect, 4)
 	spriteSheetTexture := general.InitTexture(renderer)
 

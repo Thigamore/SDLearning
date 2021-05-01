@@ -7,7 +7,7 @@ import (
 
 func SDLColorKey() {
 	window, _ := general.InitWindow()
-	renderer := general.InitRenderer(window)
+	renderer := general.InitRenderer(window, false)
 
 	fooSurface := general.LoadMedia("foo.png")
 	backgroundSurface := general.LoadMedia("background.png")

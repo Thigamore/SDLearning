@@ -7,7 +7,7 @@ import (
 
 func SDLAlphaBlending() {
 	window, _ := general.InitWindow()
-	renderer := general.InitRenderer(window)
+	renderer := general.InitRenderer(window, false)
 	foreground := general.InitTexture(renderer)
 	background := general.InitTexture(renderer)
 	foreground.LoadImage("fadeout.png", false)

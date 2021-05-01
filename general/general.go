@@ -24,8 +24,14 @@ func InitWindow() (*sdl.Window, *sdl.Surface) {
 }
 
 //Prepares Renderer and Screen
-func InitRenderer(window *sdl.Window) *sdl.Renderer {
-	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+func InitRenderer(window *sdl.Window, vSync bool) *sdl.Renderer {
+	var renderer *sdl.Renderer
+	var err error
+	if vSync {
+		renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC)
+	} else {
+		renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	}
 	if err != nil {
 		panic("Error loading the renderer")
 	}

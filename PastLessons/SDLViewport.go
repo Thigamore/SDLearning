@@ -7,7 +7,7 @@ import (
 
 func SDLWindow() {
 	window, _ := general.InitWindow()
-	renderer := general.InitRenderer(window)
+	renderer := general.InitRenderer(window, false)
 	screenWidth := int32(500)
 	screenHeight := int32(500)
 	imgSurface := general.LoadMedia("viewport.png")
