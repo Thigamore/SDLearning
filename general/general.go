@@ -2,7 +2,6 @@ package general
 
 import (
 	"github.com/veandco/go-sdl2/img"
-	sdlImg "github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -10,6 +9,8 @@ import (
 type Freeable interface {
 	Free()
 }
+
+//----------------------------------Basic Functions---------------------------
 
 //Prepares Window, Window Surface
 func InitWindow(screenWidth int32, screenHeight int32) (*sdl.Window, *sdl.Surface) {
@@ -55,7 +56,7 @@ func InitRenderer(window *sdl.Window, vSync bool) *sdl.Renderer {
 
 //Loads an image
 func LoadMedia(path string) *sdl.Surface {
-	loadSurface, err := sdlImg.Load(path)
+	loadSurface, err := img.Load(path)
 	if err != nil {
 		panic("Error loading image")
 	}
@@ -83,15 +84,17 @@ func CloseAll(toFree []Freeable, renderer *sdl.Renderer, window *sdl.Window) {
 	sdl.Quit()
 }
 
+//-----------------------------Texture Wrapper---------------------------------
+
 //Initializes the texture
-func InitTexture(renderer *sdl.Renderer) aTexture {
-	var texture aTexture
+func InitTexture(renderer *sdl.Renderer) ATexture {
+	var texture ATexture
 	texture.Renderer = renderer
 	return texture
 }
 
 //Texture Wrapper
-type aTexture struct {
+type ATexture struct {
 	Height   int32
 	Width    int32
 	Texture  *sdl.Texture
@@ -101,7 +104,7 @@ type aTexture struct {
 }
 
 //Loads image into texture from specific path
-func (texture *aTexture) LoadImage(path string, toKey bool) {
+func (texture *ATexture) LoadImage(path string, toKey bool) {
 	imgSurface := LoadMedia(path)
 	if toKey {
 		imgSurface.SetColorKey(true, sdl.MapRGB(imgSurface.Format, 0, 0xFF, 0xFF))
@@ -117,7 +120,7 @@ func (texture *aTexture) LoadImage(path string, toKey bool) {
 }
 
 //Renders texture
-func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
+func (texture *ATexture) Render(x int32, y int32, clip *sdl.Rect) {
 	var renderQuad sdl.Rect
 	if clip != nil {
 		renderQuad = sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
@@ -129,7 +132,7 @@ func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
 }
 
 //Renders texture and flips
-func (texture *aTexture) RenderFlip(x int32, y int32, clip *sdl.Rect, angle float64, center *sdl.Point, flip sdl.RendererFlip) {
+func (texture *ATexture) RenderFlip(x int32, y int32, clip *sdl.Rect, angle float64, center *sdl.Point, flip sdl.RendererFlip) {
 	var renderQuad sdl.Rect
 	if clip != nil {
 		renderQuad = sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
@@ -141,7 +144,7 @@ func (texture *aTexture) RenderFlip(x int32, y int32, clip *sdl.Rect, angle floa
 }
 
 //Modulates texture
-func (texture *aTexture) SetColor(red uint8, green, blue uint8) {
+func (texture *ATexture) SetColor(red uint8, green, blue uint8) {
 	err := texture.Texture.SetColorMod(red, green, blue)
 	if err != nil {
 		panic("Error setting color modulation")
@@ -149,17 +152,17 @@ func (texture *aTexture) SetColor(red uint8, green, blue uint8) {
 }
 
 //Sets alpha modulation
-func (texture *aTexture) SetAlpha(alpha uint8) {
+func (texture *ATexture) SetAlpha(alpha uint8) {
 	texture.Texture.SetAlphaMod(alpha)
 }
 
 //Sets blending mode
-func (texture *aTexture) SetBlendMode(blending sdl.BlendMode) {
+func (texture *ATexture) SetBlendMode(blending sdl.BlendMode) {
 	texture.Texture.SetBlendMode(blending)
 }
 
 //Creates image from font string
-func (texture *aTexture) LoadText(text string) {
+func (texture *ATexture) LoadText(text string) {
 	texture.Texture.Destroy()
 
 	textSurface, err := texture.font.RenderUTF8Solid(text, *texture.color)
@@ -181,7 +184,7 @@ func (texture *aTexture) LoadText(text string) {
 }
 
 //Sets font
-func (texture *aTexture) SetFont(path string) {
+func (texture *ATexture) SetFont(path string) {
 	var err error
 	texture.font, err = ttf.OpenFont("arial.ttf", 28)
 	if err != nil {
@@ -190,12 +193,70 @@ func (texture *aTexture) SetFont(path string) {
 }
 
 //Sets color
-func (texture *aTexture) SetFontColor(color *sdl.Color) {
+func (texture *ATexture) SetFontColor(color *sdl.Color) {
 	texture.color = color
 }
 
 //Destroys and frees everything in texture
-func (texture *aTexture) Free() {
+func (texture *ATexture) Free() {
 	texture.Texture.Destroy()
 	texture.font.Close()
+}
+
+//------------------------------------Button Class----------------------
+func InitButton(position *sdl.Point, sprite *ATexture, spritePos sdl.Rect, width int32, height int32) Button {
+	var newButton Button
+	newButton.position = position
+	newButton.spriteSheet = sprite
+	newButton.height = height
+	newButton.width = width
+	newButton.spritePos = spritePos
+	return newButton
+}
+
+type Button struct {
+	position    *sdl.Point
+	spriteSheet *ATexture
+	spritePos   sdl.Rect
+	width       int32
+	height      int32
+}
+
+func (button *Button) SetPosition(x int32, y int32) {
+	button.position.X = x
+	button.position.Y = y
+}
+
+func (button *Button) HandleEvent(e sdl.Event) string {
+	var output string
+	if e.GetType() == sdl.MOUSEMOTION || e.GetType() == sdl.MOUSEBUTTONDOWN || e.GetType() == sdl.MOUSEBUTTONUP {
+		x, y, _ := sdl.GetMouseState()
+		inside := true
+		if x < button.position.X || x > (button.position.X+button.width) || y < button.position.Y || y > (button.position.Y+button.height) {
+			inside = false
+		}
+		if !inside {
+			output = "out"
+		} else {
+			switch e.GetType() {
+			case sdl.MOUSEMOTION:
+				output = "over"
+			case sdl.MOUSEBUTTONDOWN:
+				output = "down"
+			case sdl.MOUSEBUTTONUP:
+				output = "up"
+			}
+		}
+	}
+	return output
+}
+
+//Sets sprite position
+func (button *Button) SetSpritePos(pos sdl.Rect) {
+	button.spritePos = pos
+}
+
+//Renders button
+func (button *Button) Render() {
+	button.spriteSheet.Render(button.position.X, button.position.Y, &button.spritePos)
 }
