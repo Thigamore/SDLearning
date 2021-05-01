@@ -38,6 +38,7 @@ func LoadMedia(path string) *sdl.Surface {
 	if err != nil {
 		panic("Error loading image")
 	}
+	loadSurface.SetBlendMode(sdl.BLENDMODE_BLEND)
 	return loadSurface
 }
 
@@ -81,7 +82,12 @@ func (texture *aTexture) LoadImage(path string, toKey bool) {
 
 //Renders texture
 func (texture *aTexture) Render(x int32, y int32, clip *sdl.Rect) {
-	renderQuad := sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
+	var renderQuad sdl.Rect
+	if clip != nil {
+		renderQuad = sdl.Rect{X: x, Y: y, W: clip.W, H: clip.H}
+	} else {
+		renderQuad = sdl.Rect{X: x, Y: y, W: texture.Width, H: texture.Height}
+	}
 	texture.Renderer.Copy(texture.Texture, clip, &renderQuad)
 }
 
@@ -91,4 +97,14 @@ func (texture *aTexture) SetColor(red uint8, green, blue uint8) {
 	if err != nil {
 		panic("Error setting color modulation")
 	}
+}
+
+//Sets alpha modulation
+func (texture *aTexture) SetAlpha(alpha uint8) {
+	texture.Texture.SetAlphaMod(alpha)
+}
+
+//Sets blending mode
+func (texture *aTexture) SetBlendMode(blending sdl.BlendMode) {
+	texture.Texture.SetBlendMode(blending)
 }
