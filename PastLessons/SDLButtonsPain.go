@@ -47,7 +47,7 @@ func SDLButtonsPain() {
 			case *sdl.QuitEvent:
 				running = false
 			case *sdl.MouseMotionEvent, *sdl.MouseButtonEvent:
-				for i, _ := range buttons {
+				for i := range buttons {
 					buttons[i].SetSpritePos(spriteRects[buttons[i].HandleEvent(e)])
 				}
 
