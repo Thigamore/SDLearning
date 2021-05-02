@@ -87,10 +87,10 @@ func CloseAll(toFree []Freeable, renderer *sdl.Renderer, window *sdl.Window) {
 //-----------------------------Texture Wrapper---------------------------------
 
 //Initializes the texture
-func InitTexture(renderer *sdl.Renderer) ATexture {
+func InitTexture(renderer *sdl.Renderer) *ATexture {
 	var texture ATexture
 	texture.Renderer = renderer
-	return texture
+	return &texture
 }
 
 //Texture Wrapper

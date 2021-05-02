@@ -35,7 +35,7 @@ func SDLButtonsPain() {
 	buttons := make([]general.Button, TOTAL_BUTTONS)
 
 	for i := 0; i < TOTAL_BUTTONS; i++ {
-		buttons[i] = general.InitButton(&buttonPositions[i], &spriteSheet, spriteRects["out"], 300, 200)
+		buttons[i] = general.InitButton(&buttonPositions[i], spriteSheet, spriteRects["out"], 300, 200)
 	}
 
 	running := true

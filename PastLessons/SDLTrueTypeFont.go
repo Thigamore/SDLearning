@@ -35,7 +35,7 @@ func SDLTrueTypeFont() {
 
 		renderer.Present()
 	}
-	toClose := []general.Freeable{&texture}
+	toClose := []general.Freeable{texture}
 	general.CloseAll(toClose, renderer, window)
 
 }
