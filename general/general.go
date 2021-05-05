@@ -266,7 +266,7 @@ func (button *Button) Render() {
 //------------------------------Timer Class-----------------------------
 //Initializes a new timer
 func InitTimer() *timer {
-	timer := timer{ticksStart: 0, ticksPaused: 0, paused: true, started: false}
+	timer := timer{ticksStart: 0, ticksPaused: 0, paused: false, started: false}
 	return &timer
 }
 
