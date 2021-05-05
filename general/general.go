@@ -262,3 +262,64 @@ func (button *Button) SetSpritePos(pos sdl.Rect) {
 func (button *Button) Render() {
 	button.spriteSheet.Render(button.position.X, button.position.Y, &button.spritePos)
 }
+
+//------------------------------Timer Class-----------------------------
+//Initializes a new timer
+func InitTimer() *timer {
+	timer := timer{ticksStart: 0, ticksPaused: 0, paused: true, started: false}
+	return &timer
+}
+
+//Timer class
+type timer struct {
+	ticksStart  uint32
+	ticksPaused uint32
+	paused      bool
+	started     bool
+}
+
+//Starts the timer
+func (timer *timer) Start() {
+	if !(timer.started) {
+		timer.started = true
+		timer.ticksStart = sdl.GetTicks()
+	} else {
+		timer.started = false
+		timer.paused = false
+		timer.ticksStart = 0
+		timer.ticksPaused = 0
+	}
+
+}
+
+//Pauses the timer
+func (timer *timer) Pause() {
+	if !(timer.paused) && timer.started {
+		timer.paused = true
+		timer.ticksPaused = sdl.GetTicks()
+	} else if timer.paused && timer.started {
+		timer.paused = false
+		timer.ticksPaused = 0
+	}
+}
+
+//Gets the amount of time the timer has been started
+func (timer *timer) Run() uint32 {
+	if timer.paused {
+		return timer.ticksPaused - timer.ticksStart
+	} else if timer.started {
+		return sdl.GetTicks() - (timer.ticksPaused + timer.ticksStart)
+	} else {
+		return 0
+	}
+}
+
+//Checks if the timer is running
+func (timer *timer) IsStarted() bool {
+	return timer.started
+}
+
+//Checks if the timer is paused
+func (timer *timer) IsPaused() bool {
+	return timer.paused
+}
