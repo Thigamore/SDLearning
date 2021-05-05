@@ -162,10 +162,10 @@ func (texture *ATexture) SetBlendMode(blending sdl.BlendMode) {
 }
 
 //Creates image from font string
-func (texture *ATexture) LoadText(text string) {
+func (texture *ATexture) LoadText(text string, color sdl.Color) {
 	texture.Texture.Destroy()
 
-	textSurface, err := texture.font.RenderUTF8Solid(text, *texture.color)
+	textSurface, err := texture.font.RenderUTF8Solid(text, color)
 	if err != nil {
 		panic("Error creating surface from text")
 	}
@@ -184,17 +184,19 @@ func (texture *ATexture) LoadText(text string) {
 }
 
 //Sets font
-func (texture *ATexture) SetFont(path string) {
-	var err error
-	texture.font, err = ttf.OpenFont("arial.ttf", 28)
-	if err != nil {
-		panic("Error opening font")
-	}
+func (texture *ATexture) SetFont(font *ttf.Font) {
+	texture.font = font
 }
 
 //Sets color
 func (texture *ATexture) SetFontColor(color *sdl.Color) {
 	texture.color = color
+}
+
+//Copies the object
+func (texture *ATexture) Copy() *ATexture {
+	newTexture := *texture
+	return &newTexture
 }
 
 //Destroys and frees everything in texture

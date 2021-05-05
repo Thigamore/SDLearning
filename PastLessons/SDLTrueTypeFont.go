@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/thigamore/SDL/general"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 func SDLTrueTypeFont() {
@@ -11,12 +12,15 @@ func SDLTrueTypeFont() {
 	texture := general.InitTexture(renderer)
 	const SCREEN_WIDTH = 700
 	const SCREEN_HEIGHT = 300
+	font, err := ttf.OpenFont("arial.ttf", 28)
+	if err != nil {
+		panic(sdl.GetError())
+	}
 
 	color := sdl.Color{R: 0, G: 0, B: 0, A: 255}
 
-	texture.SetFontColor(&color)
-	texture.SetFont("arial.ttf")
-	texture.LoadText("The quick brown fox jumps over the lazy dog.")
+	texture.SetFont(font)
+	texture.LoadText("The quick brown fox jumps over the lazy dog.", color)
 
 	running := true
 	var e sdl.Event
