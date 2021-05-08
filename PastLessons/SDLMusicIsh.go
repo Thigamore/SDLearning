@@ -42,7 +42,7 @@ func SDLMusicIsh() {
 		panic(sdl.GetError())
 	}
 
-	prompt.LoadImage("prompt.png", false)
+	prompt.LoadImage("prompt.png", nil)
 
 	running := true
 	var e sdl.Event

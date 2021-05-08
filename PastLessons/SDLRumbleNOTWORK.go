@@ -14,7 +14,7 @@ func SDLRumbleNOTWORK() {
 	window, _ := general.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
 	renderer := general.InitRenderer(window, true)
 	splash := general.InitTexture(renderer)
-	splash.LoadImage("splash.png", false)
+	splash.LoadImage("splash.png", nil)
 	var gameController *sdl.Joystick
 	var controllerHaptic *sdl.Haptic
 

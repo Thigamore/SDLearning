@@ -10,15 +10,15 @@ func SDLKeyCode() {
 	renderer := general.InitRenderer(window, true)
 
 	up := general.InitTexture(renderer)
-	up.LoadImage("up.png", false)
+	up.LoadImage("up.png", nil)
 	down := general.InitTexture(renderer)
-	down.LoadImage("down.png", false)
+	down.LoadImage("down.png", nil)
 	left := general.InitTexture(renderer)
-	left.LoadImage("left.png", false)
+	left.LoadImage("left.png", nil)
 	right := general.InitTexture(renderer)
-	right.LoadImage("right.png", false)
+	right.LoadImage("right.png", nil)
 	press := general.InitTexture(renderer)
-	press.LoadImage("press.png", false)
+	press.LoadImage("press.png", nil)
 
 	running := true
 	var e sdl.Event

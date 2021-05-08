@@ -13,7 +13,7 @@ func SDLClipRendering() {
 	SpriteClips := make([]sdl.Rect, 4)
 	spriteSheetTexture := general.InitTexture(renderer)
 
-	spriteSheetTexture.LoadImage("dots.png", true)
+	spriteSheetTexture.LoadImage("dots.png", &sdl.Color{R: 0x00, G: 0xFF, B: 0xFF})
 
 	//Set top left sprite
 	SpriteClips[0].X = 0
