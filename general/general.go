@@ -1,6 +1,8 @@
 package general
 
 import (
+	"fmt"
+
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -84,6 +86,47 @@ func CloseAll(toFree []Freeable, renderer *sdl.Renderer, window *sdl.Window) {
 	sdl.Quit()
 }
 
+//-----------------------------Frame Rate Manager------------------------------
+
+//Initializes a frame rate manager
+func InitFrameRateManager(frameCap uint32) *frameRateManager {
+	return &frameRateManager{frameCap: frameCap, timer: InitTimer(), lastTic: 0}
+}
+
+//A struct that is used to cap framerate to make sure that it doesn't depass a certain limit
+type frameRateManager struct {
+	frameCap uint32
+	timer    *timer
+	lastTic  uint32
+}
+
+//Starts the manager
+func (frameMan *frameRateManager) Start() {
+	frameMan.timer.Start()
+	frameMan.lastTic = frameMan.timer.Run()
+}
+
+//Runs the manager and delays the program if it is running too fast
+func (frameMan *frameRateManager) Run(toDisplay bool) {
+	currentTic := frameMan.timer.Run()
+	if (currentTic - frameMan.lastTic) <= (1000 / frameMan.frameCap) {
+		sdl.Delay((1000 / frameMan.frameCap) - (currentTic - frameMan.lastTic))
+	}
+
+	if toDisplay {
+		fmt.Println(1000 / float64((frameMan.timer.Run() - frameMan.lastTic)))
+	}
+
+	frameMan.lastTic = frameMan.timer.Run()
+}
+
+//-----------------------------Dimensions--------------------------------------
+
+//Struct that holds the width and height of anything
+type Dimension struct {
+	W, H int32
+}
+
 //-----------------------------Texture Wrapper---------------------------------
 
 //Initializes the texture
@@ -104,10 +147,10 @@ type ATexture struct {
 }
 
 //Loads image into texture from specific path
-func (texture *ATexture) LoadImage(path string, toKey bool) {
+func (texture *ATexture) LoadImage(path string, keyColor *sdl.Color) {
 	imgSurface := LoadMedia(path)
-	if toKey {
-		imgSurface.SetColorKey(true, sdl.MapRGB(imgSurface.Format, 0, 0xFF, 0xFF))
+	if keyColor != nil {
+		imgSurface.SetColorKey(true, sdl.MapRGB(imgSurface.Format, keyColor.R, keyColor.G, keyColor.B))
 	}
 	var err error
 	texture.Texture, err = texture.Renderer.CreateTextureFromSurface(imgSurface)
@@ -206,6 +249,8 @@ func (texture *ATexture) Free() {
 }
 
 //------------------------------------Button Class----------------------
+
+//Initializes a new button
 func InitButton(position *sdl.Point, sprite *ATexture, spritePos sdl.Rect, width int32, height int32) Button {
 	var newButton Button
 	newButton.position = position
@@ -264,6 +309,7 @@ func (button *Button) Render() {
 }
 
 //------------------------------Timer Class-----------------------------
+
 //Initializes a new timer
 func InitTimer() *timer {
 	timer := timer{ticksStart: 0, ticksPaused: 0, paused: false, started: false}
@@ -322,4 +368,61 @@ func (timer *timer) IsStarted() bool {
 //Checks if the timer is paused
 func (timer *timer) IsPaused() bool {
 	return timer.paused
+}
+
+//-----------------------------------Velocity-----------------------
+type Velocity struct {
+	X, Y int32
+}
+
+//-----------------------------------pEntity-------------------------
+
+//Initializes an pEntity
+func InitPEntity(texture *ATexture, location sdl.Point, initVelocity Velocity, dimension Dimension) *pEntity {
+	newpEntity := pEntity{location: location, dimension: dimension, velocity: initVelocity, texture: texture}
+	return &newpEntity
+}
+
+//An pEntity struct, p stands for player
+//Entities are objects of some kind that can be moved by player
+type pEntity struct {
+	location  sdl.Point
+	dimension Dimension
+	velocity  Velocity
+	texture   *ATexture
+}
+
+//Handles a keyboard event
+func (pEntity *pEntity) HandleEvent(t *sdl.KeyboardEvent, velocityChange uint32) {
+	switch t.Keysym.Sym {
+	case sdl.K_w:
+		pEntity.velocity.Y -= 10
+	case sdl.K_s:
+		pEntity.velocity.Y += 10
+	case sdl.K_d:
+		pEntity.velocity.X += 10
+	case sdl.K_a:
+		pEntity.velocity.X -= 10
+	case sdl.K_SPACE:
+		pEntity.velocity.X = 0
+		pEntity.velocity.Y = 0
+	}
+}
+
+//Moves the entity every frame
+func (pEntity *pEntity) Move(screenDim Dimension) {
+	if ((pEntity.location.X + pEntity.velocity.X) > screenDim.W) || ((pEntity.location.X + pEntity.velocity.X + pEntity.dimension.W) < 0) {
+		pEntity.location.X = screenDim.W - pEntity.location.X
+	}
+	if ((pEntity.location.Y + pEntity.velocity.Y) > screenDim.H) || ((pEntity.location.Y + pEntity.velocity.Y + pEntity.dimension.H) < 0) {
+		pEntity.location.Y = screenDim.H - pEntity.location.Y
+	}
+
+	pEntity.location.X += pEntity.velocity.X
+	pEntity.location.Y += pEntity.velocity.Y
+}
+
+//Renders the enitity
+func (pEntity *pEntity) Render() {
+	pEntity.texture.Render(pEntity.location.X, pEntity.location.Y, nil)
 }
