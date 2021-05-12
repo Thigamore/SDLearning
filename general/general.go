@@ -86,6 +86,18 @@ func CloseAll(toFree []Freeable, renderer *sdl.Renderer, window *sdl.Window) {
 	sdl.Quit()
 }
 
+//-----------------------------Dimensions--------------------------------------
+
+//Struct that holds the width and height of anything
+type Dimension struct {
+	W, H int32
+}
+
+//-----------------------------------Velocity-----------------------
+type Velocity struct {
+	X, Y int32
+}
+
 //-----------------------------Frame Rate Manager------------------------------
 
 //Initializes a frame rate manager
@@ -120,13 +132,6 @@ func (frameMan *frameRateManager) Run(toDisplay bool) {
 	frameMan.lastTic = frameMan.timer.Run()
 }
 
-//-----------------------------Dimensions--------------------------------------
-
-//Struct that holds the width and height of anything
-type Dimension struct {
-	W, H int32
-}
-
 //-----------------------------Texture Wrapper---------------------------------
 
 //Initializes the texture
@@ -138,24 +143,54 @@ func InitTexture(renderer *sdl.Renderer) *ATexture {
 
 //Texture Wrapper
 type ATexture struct {
-	Height   int32
-	Width    int32
-	Texture  *sdl.Texture
-	Renderer *sdl.Renderer
-	font     *ttf.Font
-	color    *sdl.Color
+	Height     int32
+	Width      int32
+	Texture    *sdl.Texture
+	Renderer   *sdl.Renderer
+	font       *ttf.Font
+	color      *sdl.Color
+	pitch      int
+	pixelsByte []byte
 }
 
 //Loads image into texture from specific path
-func (texture *ATexture) LoadImage(path string, keyColor *sdl.Color) {
+func (texture *ATexture) LoadImage(path string, keyColor *sdl.Color, pixelManWin *sdl.Window) {
 	imgSurface := LoadMedia(path)
 	if keyColor != nil {
 		imgSurface.SetColorKey(true, sdl.MapRGB(imgSurface.Format, keyColor.R, keyColor.G, keyColor.B))
 	}
 	var err error
-	texture.Texture, err = texture.Renderer.CreateTextureFromSurface(imgSurface)
-	if err != nil {
-		panic("Error creating texture from surface")
+	if pixelManWin == nil {
+		texture.Texture, err = texture.Renderer.CreateTextureFromSurface(imgSurface)
+		if err != nil {
+			panic("Error creating texture from surface")
+		}
+	} else {
+		pixelFormat, err := pixelManWin.GetPixelFormat()
+		if err != nil {
+			panic(sdl.GetError())
+		}
+
+		formattedSurface, err := imgSurface.ConvertFormat(pixelFormat, 0)
+		if err != nil {
+			panic(sdl.GetError())
+		}
+		fmt.Println(formattedSurface.W)
+		texture.Texture, err = texture.Renderer.CreateTexture(pixelFormat, sdl.TEXTUREACCESS_STREAMING, formattedSurface.W, formattedSurface.H)
+		if err != nil || texture.Texture == nil {
+			panic(sdl.GetError())
+		}
+
+		texture.pixelsByte, texture.pitch, err = texture.Texture.Lock(nil)
+		if err != nil {
+			panic(sdl.GetError())
+		}
+
+		copy(texture.pixelsByte, formattedSurface.Pixels())
+
+		texture.Texture.Unlock()
+		texture.pixelsByte = nil
+		formattedSurface.Free()
 	}
 	texture.Height = imgSurface.H
 	texture.Width = imgSurface.W
@@ -204,6 +239,16 @@ func (texture *ATexture) SetBlendMode(blending sdl.BlendMode) {
 	texture.Texture.SetBlendMode(blending)
 }
 
+//Gets Pixels
+func (texture *ATexture) GetPixel() *[]byte {
+	return &texture.pixelsByte
+}
+
+//Gets Pitch
+func (texture *ATexture) GetPitch() int {
+	return texture.pitch
+}
+
 //Creates image from font string
 func (texture *ATexture) LoadText(text string, color sdl.Color) {
 	texture.Texture.Destroy()
@@ -238,8 +283,32 @@ func (texture *ATexture) SetFontColor(color *sdl.Color) {
 
 //Copies the object
 func (texture *ATexture) Copy() *ATexture {
-	newTexture := *texture
-	return &newTexture
+	newTexture := texture
+	return newTexture
+}
+
+//Locks texture
+func (texture *ATexture) Lock() {
+	if texture.pixelsByte != nil {
+		fmt.Println("Texture is already locked")
+	} else {
+		var err error
+		texture.pixelsByte, texture.pitch, err = texture.Texture.Lock(nil)
+		if err != nil {
+			panic(sdl.GetError())
+		}
+	}
+}
+
+//Unlocks texture
+func (texture *ATexture) Unlock() {
+	if texture.pixelsByte == nil {
+		fmt.Println("Texture is already unlocked")
+	} else {
+		texture.Texture.Unlock()
+		texture.pixelsByte = nil
+		texture.pitch = 0
+	}
 }
 
 //Destroys and frees everything in texture
@@ -370,16 +439,11 @@ func (timer *timer) IsPaused() bool {
 	return timer.paused
 }
 
-//-----------------------------------Velocity-----------------------
-type Velocity struct {
-	X, Y int32
-}
-
 //-----------------------------------pEntity-------------------------
 
 //Initializes an pEntity
 func InitPEntity(texture *ATexture, location sdl.Point, initVelocity Velocity, dimension Dimension) *pEntity {
-	newpEntity := pEntity{location: location, dimension: dimension, velocity: initVelocity, texture: texture}
+	newpEntity := pEntity{location: location, dimension: dimension, velocity: initVelocity, texture: texture, collider: sdl.Rect{X: location.X, Y: location.Y, W: dimension.W, H: dimension.H}}
 	return &newpEntity
 }
 
@@ -390,6 +454,7 @@ type pEntity struct {
 	dimension Dimension
 	velocity  Velocity
 	texture   *ATexture
+	collider  sdl.Rect
 }
 
 //Handles a keyboard event
@@ -425,4 +490,9 @@ func (pEntity *pEntity) Move(screenDim Dimension) {
 //Renders the enitity
 func (pEntity *pEntity) Render() {
 	pEntity.texture.Render(pEntity.location.X, pEntity.location.Y, nil)
+}
+
+//Detects collision between the entity and another object
+func (pEntity *pEntity) CheckCollision(object *sdl.Rect) bool {
+	return pEntity.collider.HasIntersection(object)
 }

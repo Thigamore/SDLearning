@@ -18,7 +18,7 @@ func SDLController() {
 	var gameController *sdl.Joystick = nil
 	const JOYSTICK_DEAD_ZONE = 8000
 	arrow := general.InitTexture(renderer)
-	arrow.LoadImage("arrow.png", nil)
+	arrow.LoadImage("arrow.png", nil, nil)
 
 	if !(sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "1")) {
 		fmt.Println("Warning: Linear texture filtering not enabled!")

@@ -11,7 +11,7 @@ func SDLRotationFlipping() {
 	texture := general.InitTexture(renderer)
 	const SCREEN_WIDTH = 500
 	const SCREEN_HEIGHT = 500
-	texture.LoadImage("arrow.png", nil)
+	texture.LoadImage("arrow.png", nil, nil)
 
 	running := true
 	var e sdl.Event

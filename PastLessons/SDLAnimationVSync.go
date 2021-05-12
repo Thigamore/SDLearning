@@ -14,7 +14,7 @@ func SDLAnimationVSync() {
 	const SCREEN_WIDTH = 500
 	const SCREEN_HEIGHT = 500
 
-	stickManSheet.LoadImage("foo.png", nil)
+	stickManSheet.LoadImage("foo.png", nil, nil)
 	//Set sprite clips
 	stickManClips[0].X = 0
 	stickManClips[0].Y = 0

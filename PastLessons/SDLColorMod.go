@@ -9,7 +9,7 @@ func SDLColorMod() {
 	window, _ := general.InitWindow(500, 500)
 	renderer := general.InitRenderer(window, false)
 	texture := general.InitTexture(renderer)
-	texture.LoadImage("colors.png", nil)
+	texture.LoadImage("colors.png", nil, nil)
 
 	r := uint8(255)
 	g := uint8(255)

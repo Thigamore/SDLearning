@@ -12,7 +12,7 @@ func SDLButtonsPain() {
 	renderer := general.InitRenderer(window, true)
 	spriteSheet := general.InitTexture(renderer)
 
-	spriteSheet.LoadImage("button.png", nil)
+	spriteSheet.LoadImage("button.png", nil, nil)
 
 	const BUTTON_WIDTH = 300
 	const BUTTON_HEIGHT = 200

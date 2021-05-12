@@ -10,8 +10,8 @@ func SDLAlphaBlending() {
 	renderer := general.InitRenderer(window, false)
 	foreground := general.InitTexture(renderer)
 	background := general.InitTexture(renderer)
-	foreground.LoadImage("fadeout.png", nil)
-	background.LoadImage("fadein.png", nil)
+	foreground.LoadImage("fadeout.png", nil, nil)
+	background.LoadImage("fadein.png", nil, nil)
 	alpha := uint8(255)
 
 	notQuit := true

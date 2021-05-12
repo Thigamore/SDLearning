@@ -18,7 +18,7 @@ func SDLMotion() {
 		general.Dimension{W: 20, H: 20},
 	)
 
-	dotTexture.LoadImage("dot.bmp", nil)
+	dotTexture.LoadImage("dot.bmp", nil, nil)
 
 	var e sdl.Event
 	running := true
